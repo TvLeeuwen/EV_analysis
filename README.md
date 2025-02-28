@@ -13,6 +13,12 @@ If Anaconda is not installed, install Anaconda.
 
     conda activate envEV
 
+## EV_app
+
+### Run EV_app
+
+    streamlit run EV_app.py
+
 ## Update envEV
 Make sure envEV is not active, if it is run
 
@@ -22,9 +28,4 @@ Rerun the installer script by running
 
     python install_envEV.py
 
-## EV_app
-
-### Run EV_app
-
-    streamlit run EV_app.py
-
+Activate envEV and run the streamlit app like above.
