@@ -111,29 +111,18 @@ def page_output():
         st.subheader("Download files")
 
         for file_name in output_files:
-            st.write(file_name)
-            # with open(os.path.join(sts.output_path, file_name), "rb") as file:
-            #     file_data = file.read()
-            #     st.download_button(
-            #         label=f"{file_name}",
-            #         data=file_data,
-            #         file_name=file_name,
-            #     )
+            with open(os.path.join(sts.output_path, file_name), "rb") as file:
+                file_data = file.read()
+                st.download_button(
+                    label=f"{file_name}",
+                    data=file_data,
+                    file_name=file_name,
+                )
 
         st.subheader("Remove files", divider="red")
         for file_name in output_files:
             if st.button(f":red[{file_name}]"):
                 clear_output("file", file_name)
-
-        st.subheader("Folders")
-        if st.button(":red[Clear folders]"):
-            clear_output("dirs")
-
-        [
-            dir_downloader(os.path.join(sts.output_path, dir), dir, show_files=True)
-            for dir in os.listdir(sts.output_path)
-            if os.path.isdir(os.path.join(sts.output_path, dir))
-        ]
 
     else:
         st.write("Output folder is empty")

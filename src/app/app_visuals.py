@@ -2,6 +2,7 @@
 
 # Imports ---------------------------------------------------------------------
 import os
+import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -39,6 +40,14 @@ def visual_kinematics(dfs, c_scale, group_legend):
     :param dfs list: list of dfs
     :param group_legend bool: [TODO:description]
     """
+    df_minmax = pd.DataFrame(
+        columns=[
+            "Joint",
+            "Min",
+            "Max",
+            "ROM",
+        ]
+    )
     fig = go.Figure()
     for i, df_path in enumerate(dfs):
         dataset = os.path.splitext(os.path.basename(df_path))[0]
@@ -48,8 +57,16 @@ def visual_kinematics(dfs, c_scale, group_legend):
             df, _ = read_input(df_path)
 
         colors = px.colors.sample_colorscale(
-            c_scale, [n / (len(dfs) - 1) if len(dfs) > 1 else 0 for n in range(len(dfs))]
+            c_scale,
+            [n / (len(dfs) - 1) if len(dfs) > 1 else 0 for n in range(len(dfs))],
         )
+
+        df_minmax.loc[len(df_minmax)] = [
+            dataset,
+            "-",
+            "-",
+            "-",
+        ]
 
         for column in df.columns:
             # print(column)
@@ -71,6 +88,12 @@ def visual_kinematics(dfs, c_scale, group_legend):
                         hovertext=column,
                     )
                 )
+                df_minmax.loc[len(df_minmax)] = [
+                    column,
+                    np.amin(df[column]),
+                    np.amax(df[column]),
+                    np.amax(df[column]) - np.amin(df[column]),
+                ]
 
     update_fig_layout(fig)
 
@@ -79,9 +102,11 @@ def visual_kinematics(dfs, c_scale, group_legend):
         use_container_width=True,
     )
 
+    st.write("ROM")
+    st.table(df_minmax)
+
 
 def visual_dynamics(dynamics_path, group_legend=False, color_map=None):
-
     if os.path.splitext(dynamics_path)[1] == ".sto":
         df, _ = read_input(dynamics_path)
     elif os.path.splitext(dynamics_path)[1] == ".json":
@@ -90,7 +115,7 @@ def visual_dynamics(dynamics_path, group_legend=False, color_map=None):
         print("Input file for dynamics visualisation not recognized, use .sto or .json")
         return
 
-    r=False
+    r = False
     if not color_map:
         # Required for a consistent color index
         columns = set()
@@ -101,7 +126,7 @@ def visual_dynamics(dynamics_path, group_legend=False, color_map=None):
             "viridis", [n / (len(columns) - 1) for n in range(len(columns))]
         )
         color_map = {col: colors[i] for i, col in enumerate(columns)}
-        r=True
+        r = True
     else:
         new_color_map = {}
         for col in df.columns:
@@ -111,12 +136,11 @@ def visual_dynamics(dynamics_path, group_legend=False, color_map=None):
                     new_color_map[muscle] = value
         color_map = new_color_map
 
-
     fig = go.Figure()
     for column in df.columns:
         if column != "time":
             state_name = column.split("|")[1] if group_legend else column
-            name=column.split('/')[-1]
+            name = column.split("/")[-1]
             muscle = column.split("|")[0]
             fig.add_trace(
                 go.Scatter(

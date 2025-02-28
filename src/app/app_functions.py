@@ -6,6 +6,7 @@ import pyvista as pv
 import streamlit as st
 from pathlib import Path
 
+from src.app.app_io import setup_paths
 from src.MSM.sto_generator import generate_sto, read_input
 
 sts = st.session_state
@@ -447,4 +448,5 @@ def clear_output(file_type="all", file_name=None):
                     clear_session_state(file_path)
                 except Exception as e:
                     print(f"Error while removing directory: {e}")
+    sts.kine_path = []
     st.rerun()

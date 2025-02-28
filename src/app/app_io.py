@@ -72,6 +72,9 @@ def kine_uploader():
             sts.output_path,
             "",
         )
+    sts.kine_path = []
+
+    setup_paths()
 
 
 def zip_directory(folder_path):

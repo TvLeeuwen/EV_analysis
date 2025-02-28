@@ -72,7 +72,7 @@ print(
 #
 # Conda env{envs[0]} installed. To activate this environment, use
 #
-#     $ conda activate env{envs[0]}
+#     $ conda activate {envs[0]}
 #
 # To deactivate an active environment, use
 #
@@ -80,7 +80,7 @@ print(
 #
 # To uninstall this environment, use
 #
-#     $ conda remove -n env{envs[0]} --all
+#     $ conda remove -n {envs[0]} --all
 #
 """
     )
