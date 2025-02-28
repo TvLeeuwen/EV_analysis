@@ -32,20 +32,36 @@ def page_home():
 def page_kinematics():
     st.title("Kinematics")
 
-    if (
-        sts.kine_path is not None
-    ):
-
+    if sts.kine_path is not None:
         if sts.kine_path:
-            group_kine = st.toggle("Group kinematics legend", value=True)
+            group_kine = st.radio(
+                "Legend grouping:",
+                [
+                    "Individual",
+                    "Joint",
+                    "Condition",
+                    "Model",
+                    "Left-Right",
+                    "LR-Pairs",
+                ],
+                horizontal=True,
+            )
             c_scale = st.radio(
-                "Iteration:",
-                ["Rainbow", "Viridis", "Turbo", "Thermal", "Plasma"],
+                "Colorscheme:",
+                [
+                    "Rainbow",
+                    "Viridis",
+                    "Turbo",
+                    "Thermal",
+                    "Plasma",
+                ],
                 horizontal=True,
             )
 
+            sts.rom_path = os.path.join(sts.output_path, "kinematics_ROM.csv")
             visual_kinematics(
                 sts.kine_path,
+                sts.rom_path,
                 c_scale,
                 group_kine,
             )

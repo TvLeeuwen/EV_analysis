@@ -33,7 +33,7 @@ def update_fig_layout(fig):
     )
 
 
-def visual_kinematics(dfs, c_scale, group_legend):
+def visual_kinematics(dfs, rom_path, c_scale, group_legend="default"):
     """
     Plot kinematics to compare Moco track performance between input and output
 
@@ -56,19 +56,21 @@ def visual_kinematics(dfs, c_scale, group_legend):
         elif os.path.splitext(df_path)[1] == ".mot":
             df, _ = read_input(df_path)
 
-        colors = px.colors.sample_colorscale(
-            c_scale,
-            [n / (len(dfs) - 1) if len(dfs) > 1 else 0 for n in range(len(dfs))],
-        )
+        # colors = px.colors.sample_colorscale(
+        #     c_scale,
+        #     [n / (len(dfs) - 1) if len(dfs) > 1 else 0 for n in range(len(dfs))],
+        # )
+
+        colors = px.colors.sample_colorscale(c_scale, np.linspace(0, 1, len(dfs)*4))
 
         df_minmax.loc[len(df_minmax)] = [
             dataset,
-            "-",
-            "-",
-            "-",
+            None,
+            None,
+            None,
         ]
 
-        for column in df.columns:
+        for c, column in enumerate(df.columns):
             # print(column)
             if (
                 # column.strip() != "time"
@@ -76,13 +78,25 @@ def visual_kinematics(dfs, c_scale, group_legend):
                 or "knee_angle" in column
                 or "ankle_angle" in column
             ):
-                legend = column if group_legend else f"{dataset}: {column.strip()}"
+                legend_options = {
+                    "Joint": column,
+                    "Individual": f"{dataset}: {column.strip()}",
+                    "Left-Right": column.split("_")[-1],
+                    "LR-Pairs": dataset + "_".join(column.split("_")[:-1]),
+                    "Model": dataset.split("_")[0],
+                    "Condition": dataset.split("_")[1],
+                }
+                legend = legend_options.get(group_legend)
+
+                print(c)
+                print((-1)**c)
                 fig.add_trace(
                     go.Scatter(
                         x=df.index,
                         y=df[column],
                         mode="lines",
-                        line=dict(color=colors[i]),
+                        line=dict(color=colors[i + c * ((-1)**c)]),
+                        # line=dict(color=c_scale),
                         name=f"{dataset}: {column.strip()}",
                         legendgroup=legend,
                         hovertext=column,
@@ -101,6 +115,10 @@ def visual_kinematics(dfs, c_scale, group_legend):
         fig,
         use_container_width=True,
     )
+
+    if st.button("Output ROM csv"):
+        df_minmax.to_csv(rom_path, index=False)
+        print("-- ", os.path.basename(rom_path), "generated.")
 
     st.write("ROM")
     st.table(df_minmax)
