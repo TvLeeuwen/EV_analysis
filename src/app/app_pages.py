@@ -57,6 +57,7 @@ def page_kinematics():
                 ],
                 horizontal=True,
             )
+            color_option = st.toggle("Alternative Color Option", value=True)
 
             sts.rom_path = os.path.join(sts.output_path, "kinematics_ROM.csv")
             visual_kinematics(
@@ -64,6 +65,7 @@ def page_kinematics():
                 sts.rom_path,
                 c_scale,
                 group_kine,
+                color_option,
             )
         else:
             st.write("Please upload your kinematics files under :rainbow[Input]")

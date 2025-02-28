@@ -33,7 +33,13 @@ def update_fig_layout(fig):
     )
 
 
-def visual_kinematics(dfs, rom_path, c_scale, group_legend="default"):
+def visual_kinematics(
+    dfs,
+    rom_path,
+    c_scale,
+    group_legend="default",
+    color_option=False,
+):
     """
     Plot kinematics to compare Moco track performance between input and output
 
@@ -56,12 +62,8 @@ def visual_kinematics(dfs, rom_path, c_scale, group_legend="default"):
         elif os.path.splitext(df_path)[1] == ".mot":
             df, _ = read_input(df_path)
 
-        # colors = px.colors.sample_colorscale(
-        #     c_scale,
-        #     [n / (len(dfs) - 1) if len(dfs) > 1 else 0 for n in range(len(dfs))],
-        # )
+        colors = px.colors.sample_colorscale(c_scale, np.linspace(0, 1, len(dfs) * 20))
 
-        colors = px.colors.sample_colorscale(c_scale, np.linspace(0, 1, len(dfs)*4))
 
         df_minmax.loc[len(df_minmax)] = [
             dataset,
@@ -88,14 +90,16 @@ def visual_kinematics(dfs, rom_path, c_scale, group_legend="default"):
                 }
                 legend = legend_options.get(group_legend)
 
-                print(c)
-                print((-1)**c)
+                if color_option:
+                    color = colors[(i + c * ((-1) ** c)*5)]
+                else:
+                    color = colors[(2+i) * c * ((-1) ** c)]
                 fig.add_trace(
                     go.Scatter(
                         x=df.index,
                         y=df[column],
                         mode="lines",
-                        line=dict(color=colors[i + c * ((-1)**c)]),
+                        line=dict(color=color),
                         # line=dict(color=c_scale),
                         name=f"{dataset}: {column.strip()}",
                         legendgroup=legend,
